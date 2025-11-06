@@ -1,12 +1,6 @@
 use std::time::Duration;
 
-use crate::{
-    Error, Token,
-    auth::AuthFlow,
-    client::{self, Client},
-    endpoint::Endpoint,
-    error::Result,
-};
+use crate::{Error, Token, auth::AuthFlow, client::Client, endpoint::Endpoint, error::Result};
 use reqwest::Method;
 use serde::{Deserialize, Deserializer, de::DeserializeOwned};
 
@@ -273,24 +267,24 @@ impl<T: Clone + DeserializeOwned, E: Endpoint + Default + Clone> CursorPage<T, E
         let mut page = self;
 
         // Get all the next pages (if any)
-        if let Some(ref cursors) = page.cursors {
-            if cursors.after.is_some() {
-                loop {
-                    let next_page = page.get_after(spotify).await;
+        if let Some(ref cursors) = page.cursors
+            && cursors.after.is_some()
+        {
+            loop {
+                let next_page = page.get_after(spotify).await;
 
-                    match next_page {
-                        Ok(mut p) => {
-                            items.append(&mut p.items);
-                            page = p;
-                        }
-                        Err(err) => match err {
-                            Error::NoRemainingPages => break,
-                            _ => return Err(err),
-                        },
+                match next_page {
+                    Ok(mut p) => {
+                        items.append(&mut p.items);
+                        page = p;
                     }
-
-                    tokio::time::sleep(PAGINATION_INTERVAL).await;
+                    Err(err) => match err {
+                        Error::NoRemainingPages => break,
+                        _ => return Err(err),
+                    },
                 }
+
+                tokio::time::sleep(PAGINATION_INTERVAL).await;
             }
         }
 
@@ -305,50 +299,50 @@ impl<T: Clone + DeserializeOwned, E: Endpoint + Default + Clone> CursorPage<T, E
         self.limit = PAGE_MAX_LIMIT;
 
         // Get all the previous pages (if any)
-        if let Some(ref cursors) = self.cursors {
-            if cursors.before.is_some() {
-                let mut page = self.clone();
+        if let Some(ref cursors) = self.cursors
+            && cursors.before.is_some()
+        {
+            let mut page = self.clone();
 
-                loop {
-                    let previous_page = page.get_before(spotify).await;
+            loop {
+                let previous_page = page.get_before(spotify).await;
 
-                    match previous_page {
-                        Ok(mut p) => {
-                            items.append(&mut p.items);
-                            page = p;
-                        }
-                        Err(err) => match err {
-                            Error::NoRemainingPages => break,
-                            _ => return Err(err),
-                        },
+                match previous_page {
+                    Ok(mut p) => {
+                        items.append(&mut p.items);
+                        page = p;
                     }
-
-                    tokio::time::sleep(PAGINATION_INTERVAL).await;
+                    Err(err) => match err {
+                        Error::NoRemainingPages => break,
+                        _ => return Err(err),
+                    },
                 }
+
+                tokio::time::sleep(PAGINATION_INTERVAL).await;
             }
         }
 
         // Get all the next pages (if any)
-        if let Some(ref cursors) = self.cursors {
-            if cursors.after.is_some() {
-                let mut page = self;
+        if let Some(ref cursors) = self.cursors
+            && cursors.after.is_some()
+        {
+            let mut page = self;
 
-                loop {
-                    let next_page = page.get_after(spotify).await;
+            loop {
+                let next_page = page.get_after(spotify).await;
 
-                    match next_page {
-                        Ok(mut p) => {
-                            items.append(&mut p.items);
-                            page = p;
-                        }
-                        Err(err) => match err {
-                            Error::NoRemainingPages => break,
-                            _ => return Err(err),
-                        },
+                match next_page {
+                    Ok(mut p) => {
+                        items.append(&mut p.items);
+                        page = p;
                     }
-
-                    tokio::time::sleep(PAGINATION_INTERVAL).await;
+                    Err(err) => match err {
+                        Error::NoRemainingPages => break,
+                        _ => return Err(err),
+                    },
                 }
+
+                tokio::time::sleep(PAGINATION_INTERVAL).await;
             }
         }
 

@@ -33,9 +33,9 @@
 //!
 //! The auth flow you should use depends on the use case:
 //! - the authorisation code flow is recommended for long-running applications
-//!     where you can safely store the client secret (e.g. web and mobile apps)
+//!   where you can safely store the client secret (e.g. web and mobile apps)
 //! - the authorisation code with PKCE flow is recommended for long-running applications
-//!     where you *can't* safely store the client secret (e.g. desktop apps and single page web apps)
+//!   where you *can't* safely store the client secret (e.g. desktop apps and single page web apps)
 //! - the client credentials flow doesn't include authorisation, thus letting you only access public information
 //!
 //! Below is an example for each auth flow:
