@@ -189,7 +189,9 @@ impl<F: AuthFlow> Client<Token, F> {
             .auth_state
             .write()
             .expect("The lock holding the token has been poisoned.");
+
         *lock = token;
+
         Ok(())
     }
 
@@ -203,7 +205,7 @@ impl<F: AuthFlow> Client<Token, F> {
         // Whether or not to use the `url` parameter as the raw URL, instead of just the endpoint URL
         raw_url: bool,
     ) -> Result<T> {
-        let (token_expired, secret) = {
+        let (token_expired, mut secret) = {
             let lock = self
                 .auth_state
                 .read()
@@ -222,6 +224,8 @@ impl<F: AuthFlow> Client<Token, F> {
                     .auth_state
                     .read()
                     .expect("The lock holding the token has been poisoned.");
+
+                secret = lock.access_token.secret().to_owned();
 
                 info!(
                     "The token has been successfully refreshed. The new token will expire in {} seconds",
