@@ -108,6 +108,7 @@ impl Client<Token, UnknownFlow> {
         }
 
         let mut token = req.request_async(async_http_client).await?.set_timestamps();
+
         if token.refresh_token.is_none() {
             // "When a refresh token is not returned, continue using the existing token."
             // https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens
@@ -178,12 +179,18 @@ impl<F: AuthFlow> Client<Token, F> {
             refresh_token.clone()
         };
 
-        let token = self
+        let mut token = self
             .oauth
             .exchange_refresh_token(&refresh_token)
             .request_async(async_http_client)
             .await?
             .set_timestamps();
+
+        // "When a refresh token is not returned, continue using the existing token."
+        // https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens
+        if token.refresh_token.is_none() {
+            token.refresh_token = Some(refresh_token);
+        }
 
         let mut lock = self
             .auth_state
